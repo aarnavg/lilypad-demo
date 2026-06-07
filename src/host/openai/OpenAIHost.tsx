@@ -22,6 +22,7 @@ const initialKeys: ApiKeyRow[] = [
 
 export function OpenAIHost() {
   const [page, setPage] = useState<OpenAIPage>("api-keys");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [keys, setKeys] = useState(initialKeys);
   const [createAttempts, setCreateAttempts] = useState(0);
   const [toast, setToast] = useState<string>();
@@ -101,11 +102,38 @@ export function OpenAIHost() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#fbfbfa] font-[Inter,Arial,sans-serif] text-[#171716]">
+    <div className="closedai flex min-h-screen bg-[#151619] text-[#f2f2f3]">
       <Sidebar page={page} onNavigate={setPage} />
+      <AnimatePresence>
+        {mobileNavOpen && (
+          <motion.div
+            className="fixed inset-0 z-30 bg-black/65 backdrop-blur-sm md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <motion.div
+              initial={{ x: -24, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -24, opacity: 0 }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Sidebar
+                mobile
+                page={page}
+                onNavigate={(nextPage) => {
+                  setPage(nextPage);
+                  setMobileNavOpen(false);
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar onOpenMobile={() => undefined} />
-        <main className="min-h-0 flex-1 overflow-y-auto">
+        <TopBar onOpenMobile={() => setMobileNavOpen(true)} />
+        <main className="min-h-0 flex-1 overflow-y-auto pb-20">
           {page === "api-keys" && (
             <ApiKeysPage keys={keys} onCreate={createKey} onTestRequest={sendTestRequest} />
           )}
@@ -118,7 +146,7 @@ export function OpenAIHost() {
       <AnimatePresence>
         {toast && (
           <motion.div
-            className="fixed right-5 top-20 z-30 flex max-w-sm items-start gap-3 rounded-xl border border-[#e4b6b1] bg-[#fff5f3] p-4 text-[#8b3028] shadow-xl"
+            className="fixed right-5 top-20 z-30 flex max-w-sm items-start gap-3 rounded-xl border border-[#713e3a] bg-[#2a1b1a]/95 p-4 text-[#ffb4aa] shadow-2xl backdrop-blur-xl"
             initial={{ opacity: 0, x: 20, y: -8 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             exit={{ opacity: 0, x: 20 }}
@@ -126,7 +154,7 @@ export function OpenAIHost() {
             <AlertCircle className="mt-0.5 shrink-0" size={18} />
             <div className="min-w-0">
               <p className="text-sm font-semibold">Could not create secret key</p>
-              <p className="mt-1 text-xs leading-5">{toast}</p>
+              <p className="mt-1 text-xs leading-5 text-[#d99b94]">{toast}</p>
             </div>
             <button type="button" onClick={() => setToast(undefined)} aria-label="Dismiss error">
               <X size={16} />

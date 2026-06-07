@@ -19,7 +19,7 @@ const initialState: AgentState = {
     {
       id: "welcome",
       role: "agent",
-      text: "Hi, I am Lily. Share your screen or keep using the app and I will help when something gets in the way.",
+      text: "Hi, I'm Lily. Just tell me what's going wrong — I can see your screen and I'll help.",
       createdAt: Date.now(),
     },
   ],

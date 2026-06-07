@@ -1,4 +1,5 @@
 import { Building2, Code2 } from "lucide-react";
+import clsx from "clsx";
 import { useState } from "react";
 import { AgentProvider } from "./agent/AgentProvider";
 import { OpenAIHost } from "./host/openai/OpenAIHost";
@@ -15,30 +16,36 @@ function App() {
       <div className="relative min-h-screen">
         {host === "openai" ? <OpenAIHost /> : <SettingsApp />}
 
-        <div className="fixed bottom-4 left-4 z-40 flex items-center gap-1 rounded-xl border border-black/10 bg-white/90 p-1 shadow-lg backdrop-blur-md md:bottom-auto md:left-1/2 md:top-3 md:-translate-x-1/2">
+        <div
+          className={clsx(
+            "demo-switcher fixed bottom-5 left-5 z-40 flex items-center gap-1 rounded-full p-1",
+            host === "openai" ? "demo-switcher--dark" : "demo-switcher--light",
+          )}
+          aria-label="Demo client"
+        >
           <button
             type="button"
             onClick={() => setHost("openai")}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-semibold transition ${
+            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-semibold transition ${
               host === "openai"
-                ? "bg-[#171717] text-white"
-                : "text-[#656565] hover:bg-black/5"
+                ? "bg-white text-[#111] shadow-sm"
+                : "text-current opacity-55 hover:opacity-100"
             }`}
           >
             <Code2 size={14} />
-            Developer platform
+            ClosedAI
           </button>
           <button
             type="button"
             onClick={() => setHost("settings")}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-[11px] font-semibold transition ${
+            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-semibold transition ${
               host === "settings"
-                ? "bg-[#5963cf] text-white"
-                : "text-[#656565] hover:bg-black/5"
+                ? "bg-[#1e332b] text-white shadow-sm"
+                : "text-current opacity-55 hover:opacity-100"
             }`}
           >
             <Building2 size={14} />
-            Account settings
+            Hearth
           </button>
         </div>
 

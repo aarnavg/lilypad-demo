@@ -29,6 +29,31 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.closedai {
+  font-family: "Instrument Sans", sans-serif;
+  background:
+    radial-gradient(circle at 72% -15%, rgb(60 72 66 / 0.13), transparent 34%),
+    #151619;
+}
+
+.demo-switcher {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  box-shadow: 0 12px 36px rgb(0 0 0 / 0.2);
+}
+
+.demo-switcher--dark {
+  color: #f2f2f3;
+  background: rgb(24 25 28 / 0.72);
+}
+
+.demo-switcher--light {
+  color: #34453d;
+  border-color: rgb(45 70 58 / 0.12);
+  background: rgb(255 255 255 / 0.66);
+}
+
 button,
 input {
   font: inherit;
@@ -43,6 +68,37 @@ input:focus-visible,
 a:focus-visible {
   outline: 2px solid #4f8068;
   outline-offset: 2px;
+}
+
+/* Liquid glass surface — translucent, frosted, with a soft specular edge. */
+.lily-glass {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(242, 248, 244, 0.42)
+    );
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 16px 48px rgba(15, 34, 24, 0.2),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -10px 24px rgba(120, 150, 135, 0.08);
+}
+
+/* Translucent glass orb — barely there, but alive. */
+.lily-orb {
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.55), transparent 42%),
+    radial-gradient(circle at 50% 50%, rgba(74, 156, 116, 0.62), rgba(32, 92, 66, 0.62));
+  backdrop-filter: blur(10px) saturate(170%);
+  -webkit-backdrop-filter: blur(10px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 12px 30px rgba(20, 60, 42, 0.28),
+    inset 0 1px 2px rgba(255, 255, 255, 0.75),
+    inset 0 -8px 16px rgba(8, 36, 24, 0.3);
 }
 
 .lily-wave {

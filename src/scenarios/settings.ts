@@ -7,7 +7,7 @@ export const settingsScenarios: ScriptedScenario[] = [
     triggerEvent: "subscription.cancel.searched",
     userMessage: "I just want to stop this subscription. Where is cancel?",
     agentMessage:
-      "The control is tucked inside Billing under your current plan. I can open it and switch you to the Free plan for you.",
+      "The control is tucked inside Membership under your current plan. I can open it and switch you to the Free plan for you.",
     knowledgeQuery: "cancel downgrade subscription billing plan",
     detection: {
       id: "cancel-ux-detection",
@@ -17,7 +17,7 @@ export const settingsScenarios: ScriptedScenario[] = [
         "The option exists, but the path and wording make a common account task unnecessarily difficult.",
       evidence: [
         "You searched account settings for cancel and downgrade.",
-        "The control is nested under Billing, then Current plan.",
+        "The control is nested under Membership, then Current membership.",
       ],
       action: {
         id: "settings.downgrade-plan",

@@ -20,6 +20,29 @@ $env:VITE_AGENT_MODE = "live"
 npm run dev
 ```
 
+## Widget UI (this is the user-side surface I own)
+
+This repo is the **customer-side demo**: a realistic host site (`src/host/*`)
+with the Lilypad widget embedded. The widget is intentionally a tiny
+**liquid-glass overlay** — never a chat panel — so it barely covers the host app.
+The real intelligence (LiveKit, Minimax vision, voice ASR/TTS, Truefoundry,
+Unsiloed retrieval) is the team's and plugs in through the seams below; the UI
+does not change.
+
+- `src/widget/LilyOrb.tsx` — the persistent glass presence (~56px). One click
+  starts/stops talking; status is shown purely through motion (ripples / dot /
+  wave), no labels.
+- `src/widget/LilyOverlay.tsx` — the only chrome shown when open: a translucent
+  `.lily-glass` bubble with Lily's latest line, a small state dot, and at most
+  **one** action button. Controls (mic / screen share / close) stay hidden until
+  hover. No headers, badges, evidence, confidence, or transcript.
+- `SupportWidget` auto-opens the overlay hands-free whenever the agent reacts
+  (`state.attention`), so users never hunt for controls.
+
+There is **no voice/TTS in this repo** — that's the team's pipeline. The mic
+button is a UI affordance that flips `client.setListening(...)` (drives the orb
+animation only). Wire real ASR/TTS inside `LiveSupportAgent`.
+
 ## Integration seams
 
 ### 1. Agent runtime

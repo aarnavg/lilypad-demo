@@ -27,20 +27,33 @@ const navigation: Array<{
 export function Sidebar({
   page,
   onNavigate,
+  mobile = false,
 }: {
   page: OpenAIPage;
   onNavigate: (page: OpenAIPage) => void;
+  mobile?: boolean;
 }) {
   return (
-    <aside className="hidden w-[235px] shrink-0 border-r border-[#ececec] bg-[#f9f9f8] md:flex md:flex-col">
-      <div className="flex h-16 items-center gap-2.5 px-5">
-        <div className="grid size-7 place-items-center rounded-full bg-[#111] text-sm font-semibold text-white">
-          O
+    <aside
+      className={clsx(
+        "w-[244px] shrink-0 border-r border-white/[0.07] bg-[#111214]",
+        mobile ? "flex h-screen flex-col" : "hidden md:flex md:flex-col",
+      )}
+    >
+      <div className="flex h-16 items-center gap-2.5 px-4">
+        <div className="grid size-8 place-items-center rounded-lg border border-white/10 bg-white/[0.06] text-[13px] font-semibold text-white">
+          C
         </div>
-        <span className="text-sm font-semibold tracking-tight">OpenAI Platform</span>
+        <div>
+          <span className="block text-sm font-semibold tracking-tight text-[#f4f4f5]">ClosedAI</span>
+          <span className="block text-[10px] text-[#777980]">Developer Platform</span>
+        </div>
       </div>
 
-      <nav className="space-y-1 px-3 py-3" aria-label="Platform navigation">
+      <p className="px-5 pb-2 pt-4 text-[10px] font-medium uppercase tracking-[.12em] text-[#66686f]">
+        Build
+      </p>
+      <nav className="space-y-0.5 px-2.5" aria-label="Platform navigation">
         {navigation.map(({ id, label, icon: Icon }) => (
           <button
             key={label}
@@ -48,10 +61,10 @@ export function Sidebar({
             disabled={!id}
             onClick={() => id && onNavigate(id)}
             className={clsx(
-              "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-[13px] transition",
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition",
               id === page
-                ? "bg-[#e9e9e7] font-medium text-[#111]"
-                : "text-[#626260] hover:bg-[#efefed] hover:text-[#111]",
+                ? "bg-white/[0.09] font-medium text-white"
+                : "text-[#999ba2] hover:bg-white/[0.05] hover:text-[#e5e5e7]",
               !id && "cursor-default",
             )}
           >
@@ -61,12 +74,12 @@ export function Sidebar({
         ))}
       </nav>
 
-      <div className="mt-auto space-y-1 border-t border-[#ececec] p-3">
-        <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-[13px] text-[#626260]">
+      <div className="mt-auto space-y-1 border-t border-white/[0.07] p-3 pb-20">
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#8d8f96] hover:bg-white/[0.05] hover:text-white">
           <SlidersHorizontal size={16} />
           Fine-tuning
         </button>
-        <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-[13px] text-[#626260]">
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#8d8f96] hover:bg-white/[0.05] hover:text-white">
           <Settings size={16} />
           Settings
         </button>
