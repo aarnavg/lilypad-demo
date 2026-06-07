@@ -67,7 +67,10 @@ jobs:
                 "name": "MiniMax",
                 "options": {
                   "apiKey": "{env:MINIMAX_API_KEY}",
-                  "baseURL": "${MINIMAX_API_BASE}/anthropic"
+                  "baseURL": "${MINIMAX_API_BASE}/anthropic/v1",
+                  "headers": {
+                    "X-Api-Key": "{env:MINIMAX_API_KEY}"
+                  }
                 },
                 "models": {
                   "${MINIMAX_AGENT_MODEL}": {
@@ -94,9 +97,11 @@ jobs:
           STATUS="$(curl --silent --show-error \
             --output "$RESPONSE_FILE" \
             --write-out '%{http_code}' \
-            --request GET \
-            --url "$MINIMAX_API_BASE/anthropic/v1/models/$MINIMAX_AGENT_MODEL" \
-            --header "X-Api-Key: $MINIMAX_API_KEY")"
+            --request POST \
+            --url "$MINIMAX_API_BASE/anthropic/v1/messages" \
+            --header "X-Api-Key: $MINIMAX_API_KEY" \
+            --header "Content-Type: application/json" \
+            --data "{\"model\":\"$MINIMAX_AGENT_MODEL\",\"max_tokens\":8,\"messages\":[{\"role\":\"user\",\"content\":\"Reply OK\"}]}")"
 
           if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
             echo "::error::MiniMax agent API preflight failed with HTTP $STATUS for $MINIMAX_AGENT_MODEL"
