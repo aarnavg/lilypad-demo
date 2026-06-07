@@ -77,7 +77,7 @@ jobs:
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
         run: |
-          opencode -p "You are a prototyping agent. Implement the following feature request in this codebase.
+          opencode run "You are a prototyping agent. Implement the following feature request in this codebase.
 
           Title: ${{ github.event.client_payload.title }}
           Description: ${{ github.event.client_payload.description }}
@@ -88,12 +88,13 @@ jobs:
           - Make minimal, focused changes to prototype this feature.
           - After writing code, run the build (npm run build or npm run typecheck) to verify it compiles.
           - If the build fails, fix the errors and retry.
-          - Do not modify unrelated files." -q
+          - Do not modify unrelated files."
 
       - name: Push changes
         run: |
           git config user.name "lilypad-agent[bot]"
           git config user.email "lilypad-agent[bot]@users.noreply.github.com"
+          rm -f .opencode.json
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to commit"
