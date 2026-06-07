@@ -107,13 +107,14 @@ export function OpenAIHost() {
       <AnimatePresence>
         {mobileNavOpen && (
           <motion.div
-            className="fixed inset-0 z-30 bg-black/65 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileNavOpen(false)}
           >
             <motion.div
+              className="h-full w-[244px] bg-[#111214] shadow-[20px_0_60px_rgba(0,0,0,0.45)]"
               initial={{ x: -24, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -24, opacity: 0 }}

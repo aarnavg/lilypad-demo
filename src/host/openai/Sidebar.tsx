@@ -36,7 +36,7 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        "w-[244px] shrink-0 border-r border-white/[0.07] bg-[#111214]",
+        "relative z-10 w-[244px] shrink-0 border-r border-white/[0.07] bg-[#111214]",
         mobile ? "flex h-screen flex-col" : "hidden md:flex md:flex-col",
       )}
     >
