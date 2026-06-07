@@ -20,7 +20,7 @@ export function UsagePage({
       <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">
         Usage
       </h1>
-      <p className="mt-2 text-sm text-[#8f9198]">
+      <p className="mt-2 text-sm text-[#a5a7ad]">
         Live spend and request activity for the Production project.
       </p>
 
@@ -68,7 +68,7 @@ export function UsagePage({
             key={label}
             className="rounded-xl border border-white/[0.08] bg-[#1b1c1f] p-5"
           >
-            <p className="text-xs text-[#797b82]">{label}</p>
+            <p className="text-xs text-[#95979f]">{label}</p>
             <p className="mt-2 text-2xl font-semibold tracking-tight text-[#f0f0f1]">
               {value}
             </p>

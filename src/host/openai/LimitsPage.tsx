@@ -45,11 +45,11 @@ export function LimitsPage({
           <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">
             Limits
           </h1>
-          <p className="mt-2 text-sm text-[#8f9198]">
+          <p className="mt-2 text-sm text-[#a5a7ad]">
             Project budgets, alerts, and workload usage.
           </p>
         </div>
-        <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[10px] text-[#94969d]">
+        <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-[10px] text-[#a8aaaf]">
           Organization credits $87.42
         </span>
       </div>
@@ -66,7 +66,7 @@ export function LimitsPage({
             setSearched(false);
           }}
           placeholder="Search limits, for example: cap prod-support-worker at $75"
-          className="w-full rounded-xl border border-white/[0.09] bg-[#1b1c1f] py-3 pl-11 pr-28 text-sm text-[#e8e8ea] outline-none placeholder:text-[#65676e] focus:border-[#777980] focus:ring-2 focus:ring-white/5"
+          className="w-full rounded-xl border border-white/[0.09] bg-[#1b1c1f] py-3 pl-11 pr-28 text-sm text-[#e8e8ea] outline-none placeholder:text-[#7a7c82] focus:border-[#777980] focus:ring-2 focus:ring-white/5"
         />
         <button
           type="submit"
@@ -134,7 +134,7 @@ export function LimitsPage({
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-medium text-[#dedee0]">{budgetLabel}</p>
-              <p className="mt-1 text-xs text-[#7c7e85]">
+              <p className="mt-1 text-xs text-[#92949a]">
                 $120.00 spent - alerts at 80% and 100%
               </p>
             </div>
@@ -160,16 +160,16 @@ export function LimitsPage({
           <h2 className="text-sm font-semibold text-[#eeeeef]">
             Spend by API key
           </h2>
-          <p className="mt-1 text-xs text-[#777980]">
-            Usage is visible by key, but limits cannot be configured here.
-          </p>
+<p className="mt-1 text-xs text-[#8d8f96]">
+              Usage is visible by key, but limits cannot be configured here.
+            </p>
         </div>
         <div className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-4">
           <div>
             <p className="text-sm font-medium text-[#d8d8da]">
               prod-support-worker
             </p>
-            <p className="mt-1 text-[10px] text-[#777980]">
+            <p className="mt-1 text-[10px] text-[#8d8f96]">
               31,204 requests - closed-4.1-mini
             </p>
           </div>
