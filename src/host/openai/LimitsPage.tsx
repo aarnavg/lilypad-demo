@@ -98,17 +98,13 @@ export function LimitsPage({
             <CheckCircle2 className="mt-0.5 text-[#78c99a]" size={18} />
             <div>
               <p className="text-sm font-semibold text-[#b9efca]">
-                Resolution verified
+                Production is serving requests again
               </p>
               <p className="mt-1 text-xs text-[#83ae91]">
-                Budget raised, alerts preserved, retry req_retry_8b12 returned
-                200 in 412 ms.
+                Budget raised and existing alerts preserved.
               </p>
             </div>
           </div>
-          <code className="rounded-md bg-black/20 px-2.5 py-1.5 text-[10px] text-[#8fd0a7]">
-            200 OK
-          </code>
         </motion.div>
       )}
 

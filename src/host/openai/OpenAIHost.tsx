@@ -1,4 +1,3 @@
-import { AlertCircle, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { hostBus, publishHostObservation } from "../hostBus";
@@ -26,8 +25,6 @@ export function OpenAIHost() {
   const [page, setPage] = useState<OpenAIPage>("api-keys");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [keys, setKeys] = useState(initialKeys);
-  const [createAttempts, setCreateAttempts] = useState(0);
-  const [toast, setToast] = useState<string>();
   const [budgetLabel, setBudgetLabel] = useState("$120.00 per month");
   const [highlightBudget, setHighlightBudget] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
@@ -72,13 +69,12 @@ export function OpenAIHost() {
     options: { type: string; scopes: string[] },
   ) {
     await new Promise((resolve) => window.setTimeout(resolve, 850));
-    const shouldFail = createAttempts > 0;
-    setCreateAttempts((attempts) => attempts + 1);
+    const restricted = !options.scopes.includes("all");
 
-    if (shouldFail) {
-      setToast(
-        "POST /v1/projects/prod/keys returned 500 in us-west - req_91c2e8",
-      );
+    // Restricted service keys are failing today (an auth regression on
+    // ClosedAI's side). The page shows a normal, human error — the deep cause is
+    // what Lily uncovers from the company's deploy notes.
+    if (restricted) {
       publishHostObservation({
         host: "openai",
         event: "key.create.failed",
@@ -95,8 +91,11 @@ export function OpenAIHost() {
           deployment: "auth-v2.3.1",
         },
       });
-      window.setTimeout(() => setToast(undefined), 7000);
-      return { ok: false };
+      return {
+        ok: false,
+        error:
+          "Something went wrong creating this key. Your details look right — please try again in a moment.",
+      };
     }
 
     const demoKey = "sk-demo-NOT-A-REAL-KEY-lily-7Qp";
@@ -115,12 +114,13 @@ export function OpenAIHost() {
     return { ok: true, key: demoKey };
   }
 
-  async function sendTestRequest() {
-    await new Promise((resolve) => window.setTimeout(resolve, 750));
+  // The customer's production traffic is being declined. They notice it on the
+  // Usage dashboard (a real product surface) and reach for support from there.
+  function reportBlockedRequests() {
     publishHostObservation({
       host: "openai",
       event: "request.quota_exceeded",
-      title: "Production request returned insufficient quota",
+      title: "Production requests are being declined",
       detail:
         "HTTP 429 insufficient_quota despite $87.42 organization credits.",
       metadata: {
@@ -194,13 +194,14 @@ export function OpenAIHost() {
         <TopBar onOpenMobile={() => setMobileNavOpen(true)} />
         <main className="min-h-0 flex-1 overflow-y-auto pb-20">
           {page === "api-keys" && (
-            <ApiKeysPage
-              keys={keys}
-              onCreate={createKey}
-              onTestRequest={sendTestRequest}
+            <ApiKeysPage keys={keys} onCreate={createKey} />
+          )}
+          {page === "usage" && (
+            <UsagePage
+              budgetLabel={budgetLabel}
+              onGetHelp={reportBlockedRequests}
             />
           )}
-          {page === "usage" && <UsagePage budgetLabel={budgetLabel} />}
           {page === "billing" && <BillingPage highlightPayment={false} />}
           {page === "limits" && (
             <LimitsPage
@@ -213,35 +214,6 @@ export function OpenAIHost() {
           )}
         </main>
       </div>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            className="fixed right-5 top-20 z-30 flex max-w-md items-start gap-3 rounded-xl border border-[#713e3a] bg-[#2a1b1a]/95 p-4 text-[#ffb4aa] shadow-2xl backdrop-blur-xl"
-            initial={{ opacity: 0, x: 20, y: -8 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <AlertCircle className="mt-0.5 shrink-0" size={18} />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">
-                Key service returned an internal error
-              </p>
-              <p className="mt-1 text-xs leading-5 text-[#d99b94]">{toast}</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[.08em] text-[#a96f6a]">
-                Validated payload - Restricted - 2 scopes
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setToast(undefined)}
-              aria-label="Dismiss error"
-            >
-              <X size={16} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

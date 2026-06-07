@@ -122,16 +122,20 @@ action registry can remain as an optional structured tool channel.
 ## Judge Demo
 
 Start on the teammate-owned admin portal and show that private documentation is
-linked and indexed. Then move to this user-side application.
+linked and indexed. Then move to this user-side application — these are realistic
+customer-facing products (a developer on ClosedAI, a member on Hearth). There are
+no debug popups or test buttons; the customer just hits a confusing situation and
+reaches for support, exactly like production.
 
-1. **Ambiguous 429:** click **Send test request**. The API only says
-   `insufficient_quota`, while the page visibly shows $87.42 in organization
-   credits. Lily matches the private limits policy, correlates Production's
-   $120/$120 spend, raises the cap, preserves alerts, and verifies a `200` retry.
-2. **Rollout regression:** create one restricted service key successfully, then
-   create another. The second request returns `500` with `req_91c2e8`. Lily
-   cross-checks the key runbook, same-day auth v2.3.1 deployment notes, and the
-   incident template, then files a sanitized GitHub issue with the likely cause.
+1. **Ambiguous 429:** open **Usage**. A normal banner says production requests are
+   being declined (`insufficient_quota`) even though the org has $87.42 in
+   credits. Click **Get help**. Lily matches the private limits policy, correlates
+   Production's $120/$120 spend, raises the cap, and preserves alerts.
+2. **Rollout regression:** go to **API keys → Create new secret key** with the
+   default *Restricted* permission. The product shows a normal "something went
+   wrong, try again" message (no internal detail). Lily cross-checks the key
+   runbook + same-day auth v2.3.1 deployment notes and files a sanitized GitHub
+   issue — surfacing the deep cause the page never exposes.
 3. **Product gap plus workaround:** open Limits and search
    `cap prod-support-worker at $75 per month`. Lily confirms per-key budgets are
    unsupported, finds 37 similar enterprise requests in the support rollup,

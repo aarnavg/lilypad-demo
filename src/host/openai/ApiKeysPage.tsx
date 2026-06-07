@@ -1,22 +1,28 @@
-import { Check, Copy, KeyRound, MoreHorizontal, Plus, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  KeyRound,
+  MoreHorizontal,
+  Plus,
+  X,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { ApiKeyRow } from "./types";
-import { QuickstartTest } from "./QuickstartTest";
+import { Quickstart } from "./Quickstart";
 
 const defaultScopes = ["responses.write", "files.read"];
 
 export function ApiKeysPage({
   keys,
   onCreate,
-  onTestRequest,
 }: {
   keys: ApiKeyRow[];
   onCreate: (
     name: string,
     options: { type: string; scopes: string[] },
-  ) => Promise<{ ok: boolean; key?: string }>;
-  onTestRequest: () => Promise<void>;
+  ) => Promise<{ ok: boolean; key?: string; error?: string }>;
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [name, setName] = useState("");
@@ -25,11 +31,12 @@ export function ApiKeysPage({
   const [copied, setCopied] = useState(false);
   const [keyType, setKeyType] = useState("Service account");
   const [permissionMode, setPermissionMode] = useState("Restricted");
+  const [error, setError] = useState<string>();
 
   async function createKey() {
     setCreating(true);
-    const scopes =
-      permissionMode === "Restricted" ? defaultScopes : ["all"];
+    setError(undefined);
+    const scopes = permissionMode === "Restricted" ? defaultScopes : ["all"];
     const result = await onCreate(name || "prod-worker-backup", {
       type: keyType,
       scopes,
@@ -38,7 +45,7 @@ export function ApiKeysPage({
     if (result.ok && result.key) {
       setGeneratedKey(result.key);
     } else {
-      closeModal();
+      setError(result.error ?? "We couldn't create this key right now. Please try again.");
     }
   }
 
@@ -47,6 +54,7 @@ export function ApiKeysPage({
     setGeneratedKey(undefined);
     setName("");
     setCopied(false);
+    setError(undefined);
   }
 
   return (
@@ -112,7 +120,7 @@ export function ApiKeysPage({
       </section>
 
       <div className="mt-8">
-        <QuickstartTest onSend={onTestRequest} />
+        <Quickstart />
       </div>
 
       <AnimatePresence>
@@ -260,11 +268,17 @@ export function ApiKeysPage({
                     )}
                   </fieldset>
 
-                  <div className="rounded-lg border border-white/[0.07] bg-black/15 p-3 text-[11px] leading-5 text-[#85878e]">
-                    <KeyRound size={13} className="mr-1.5 inline" />
-                    Client validation complete: owner role and selected scopes
-                    are allowed.
-                  </div>
+                  {error ? (
+                    <div className="flex items-start gap-2.5 rounded-lg border border-[#5e4534] bg-[#2a2018] p-3 text-[12px] leading-5 text-[#e6c3a7]">
+                      <AlertTriangle size={15} className="mt-0.5 shrink-0" />
+                      <p>{error}</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-white/[0.07] bg-black/15 p-3 text-[11px] leading-5 text-[#85878e]">
+                      <KeyRound size={13} className="mr-1.5 inline" />
+                      Restricted keys are scoped to the permissions you select.
+                    </div>
+                  )}
 
                   <div className="flex justify-end gap-2">
                     <button
@@ -280,7 +294,7 @@ export function ApiKeysPage({
                       disabled={creating}
                       className="min-w-28 rounded-lg bg-[#f0f0f1] px-4 py-2.5 text-sm font-medium text-[#171719] disabled:opacity-60"
                     >
-                      {creating ? "Creating..." : "Create key"}
+                      {creating ? "Creating..." : error ? "Try again" : "Create key"}
                     </button>
                   </div>
                 </div>
