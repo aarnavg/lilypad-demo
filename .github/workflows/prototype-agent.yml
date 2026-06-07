@@ -47,7 +47,7 @@ jobs:
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_API_BASE: ${{ secrets.MINIMAX_API_BASE || 'https://api.minimax.io' }}
-          MINIMAX_MODEL: ${{ secrets.MINIMAX_MODEL || 'MiniMax-M2.5' }}
+          MINIMAX_AGENT_MODEL: ${{ secrets.MINIMAX_AGENT_MODEL || 'MiniMax-M2.7' }}
         run: |
           if [ -z "$MINIMAX_API_KEY" ]; then
             echo "::error::MINIMAX_API_KEY is not configured"
@@ -55,32 +55,54 @@ jobs:
           fi
 
           MINIMAX_API_BASE="${MINIMAX_API_BASE%/}"
-          case "$MINIMAX_API_BASE" in
-            */v1) ;;
-            *) MINIMAX_API_BASE="$MINIMAX_API_BASE/v1" ;;
-          esac
+          MINIMAX_API_BASE="${MINIMAX_API_BASE%/v1}"
+          MINIMAX_API_BASE="${MINIMAX_API_BASE%/anthropic}"
 
           cat > .opencode.json <<EOF
           {
             "\$schema": "https://opencode.ai/config.json",
             "provider": {
               "minimax": {
-                "npm": "@ai-sdk/openai-compatible",
+                "npm": "@ai-sdk/anthropic",
                 "name": "MiniMax",
                 "options": {
                   "apiKey": "{env:MINIMAX_API_KEY}",
-                  "baseURL": "${MINIMAX_API_BASE}"
+                  "baseURL": "${MINIMAX_API_BASE}/anthropic"
                 },
                 "models": {
-                  "${MINIMAX_MODEL}": {
+                  "${MINIMAX_AGENT_MODEL}": {
                     "name": "MiniMax"
                   }
                 }
               }
             },
-            "model": "minimax/${MINIMAX_MODEL}"
+            "model": "minimax/${MINIMAX_AGENT_MODEL}"
           }
           EOF
+
+      - name: Verify MiniMax agent access
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_API_BASE: ${{ secrets.MINIMAX_API_BASE || 'https://api.minimax.io' }}
+          MINIMAX_AGENT_MODEL: ${{ secrets.MINIMAX_AGENT_MODEL || 'MiniMax-M2.7' }}
+        run: |
+          MINIMAX_API_BASE="${MINIMAX_API_BASE%/}"
+          MINIMAX_API_BASE="${MINIMAX_API_BASE%/v1}"
+          MINIMAX_API_BASE="${MINIMAX_API_BASE%/anthropic}"
+
+          RESPONSE_FILE="$(mktemp)"
+          STATUS="$(curl --silent --show-error \
+            --output "$RESPONSE_FILE" \
+            --write-out '%{http_code}' \
+            --request GET \
+            --url "$MINIMAX_API_BASE/anthropic/v1/models/$MINIMAX_AGENT_MODEL" \
+            --header "X-Api-Key: $MINIMAX_API_KEY")"
+
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
+            echo "::error::MiniMax agent API preflight failed with HTTP $STATUS for $MINIMAX_AGENT_MODEL"
+            cat "$RESPONSE_FILE"
+            exit 1
+          fi
 
       - name: Run OpenCode agent
         env:
