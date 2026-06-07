@@ -58,7 +58,7 @@ jobs:
                 "name": "MiniMax",
                 "options": {
                   "apiKey": "${MINIMAX_API_KEY}",
-                  "baseURL": "${MINIMAX_API_BASE}/v1/text/chatcompletion_v2"
+                  "baseURL": "${MINIMAX_API_BASE}/v1"
                 },
                 "models": {
                   "${MINIMAX_MODEL}": {
@@ -94,6 +94,7 @@ jobs:
         run: |
           git config user.name "lilypad-agent[bot]"
           git config user.email "lilypad-agent[bot]@users.noreply.github.com"
+          rm -f .opencode.json
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to commit"
