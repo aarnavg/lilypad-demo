@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "minimax": {
+      "id": "minimax",
+      "name": "MiniMax",
+      "options": {
+        "apiKey": "sk-api-ehlwUcq2U_rDHhjGUBP7nEZOPWoIShSLKJoiGQgTkANEAmmCJ4GYHJnjMi9Aq3fjNjvhkNU64wSWhuPUR_J0K_IJjEgQu5GKK2sfcd_m1zxQHb1gcK1H02o",
+        "baseURL": "https://api.minimax.io/v1/text/chatcompletion_v2"
+      },
+      "models": {
+        "MiniMax-M2.5": {
+          "id": "MiniMax-M2.5",
+          "name": "MiniMax",
+          "tool_call": true
+        }
+      }
+    }
+  },
+  "model": "minimax/MiniMax-M2.5"
+}
