@@ -58,11 +58,11 @@ jobs:
           MINIMAX_API_BASE="${MINIMAX_API_BASE%/v1}"
           MINIMAX_API_BASE="${MINIMAX_API_BASE%/anthropic}"
 
-          cat > .opencode.json <<EOF
+          cat > opencode-agent.json <<EOF
           {
             "\$schema": "https://opencode.ai/config.json",
             "provider": {
-              "minimax": {
+              "minimax-agent": {
                 "npm": "@ai-sdk/anthropic",
                 "name": "MiniMax",
                 "options": {
@@ -76,7 +76,7 @@ jobs:
                 }
               }
             },
-            "model": "minimax/${MINIMAX_AGENT_MODEL}"
+            "model": "minimax-agent/${MINIMAX_AGENT_MODEL}"
           }
           EOF
 
@@ -104,9 +104,23 @@ jobs:
             exit 1
           fi
 
+      - name: Verify OpenCode configuration
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_AGENT_MODEL: ${{ secrets.MINIMAX_AGENT_MODEL || 'MiniMax-M2.7' }}
+          OPENCODE_CONFIG: ${{ github.workspace }}/opencode-agent.json
+        run: |
+          opencode models minimax-agent | tee /tmp/opencode-models.log
+          if ! grep -Fq "minimax-agent/$MINIMAX_AGENT_MODEL" /tmp/opencode-models.log; then
+            echo "::error::OpenCode did not load minimax-agent/$MINIMAX_AGENT_MODEL from $OPENCODE_CONFIG"
+            exit 1
+          fi
+
       - name: Run OpenCode agent
         env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_AGENT_MODEL: ${{ secrets.MINIMAX_AGENT_MODEL || 'MiniMax-M2.7' }}
+          OPENCODE_CONFIG: ${{ github.workspace }}/opencode-agent.json
           FEATURE_TITLE: ${{ github.event.client_payload.title }}
           FEATURE_DESCRIPTION: ${{ github.event.client_payload.description }}
           FEATURE_AFFECTED_AREA: ${{ github.event.client_payload.affected_area }}
@@ -128,14 +142,15 @@ jobs:
           EOF
           )"
 
-          opencode run "$PROMPT" 2>&1 | tee /tmp/opencode.log
+          echo "Using OpenCode model: minimax-agent/$MINIMAX_AGENT_MODEL"
+          opencode run --model "minimax-agent/$MINIMAX_AGENT_MODEL" "$PROMPT" 2>&1 | tee /tmp/opencode.log
 
           if grep -Eiq 'invalid api key|unauthorized|authentication failed|provider.*not found|model.*not found' /tmp/opencode.log; then
             echo "::error::OpenCode reported an authentication or provider error; see the agent log above"
             exit 1
           fi
 
-          if [ -z "$(git status --porcelain -- . ':(exclude).opencode.json')" ]; then
+          if [ -z "$(git status --porcelain -- . ':(exclude)opencode-agent.json')" ]; then
             echo "::error::OpenCode completed without making any changes"
             exit 1
           fi
@@ -144,7 +159,7 @@ jobs:
         run: |
           git config user.name "lilypad-agent[bot]"
           git config user.email "lilypad-agent[bot]@users.noreply.github.com"
-          rm -f .opencode.json
+          rm -f opencode-agent.json
           git add -A
           if git diff --cached --quiet; then
             echo "::error::No changes to commit"
