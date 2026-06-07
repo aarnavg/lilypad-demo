@@ -11,6 +11,17 @@
   --coral: #ef765f;
 }
 
+.dark {
+  --ink: #e8e5e0;
+  --muted: #9a9590;
+  --paper: #1a1a1e;
+  --line: #2e2e33;
+  --panel: #232328;
+  --moss: #4a9e7a;
+  --moss-dark: #2d7a58;
+  --coral: #f08a78;
+}
+
 * {
   box-sizing: border-box;
 }
