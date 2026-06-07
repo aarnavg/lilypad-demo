@@ -1,6 +1,14 @@
-import { Bell, ChevronDown, CircleHelp, Menu } from "lucide-react";
+import { Bell, ChevronDown, CircleHelp, Menu, Moon, Sun } from "lucide-react";
+import { useState } from "react";
 
 export function TopBar({ onOpenMobile }: { onOpenMobile: () => void }) {
+  const [darkMode, setDarkMode] = useState(true);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle("dark", !darkMode);
+  };
+
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.07] bg-[#151619]/95 px-4 backdrop-blur-xl md:px-6">
       <div className="flex items-center gap-3">
@@ -29,6 +37,13 @@ export function TopBar({ onOpenMobile }: { onOpenMobile: () => void }) {
         </button>
         <button className="grid size-9 place-items-center rounded-md text-[#8f9198] hover:bg-white/[0.06] hover:text-white" aria-label="Notifications">
           <Bell size={18} />
+        </button>
+        <button
+          onClick={toggleDarkMode}
+          className="grid size-9 place-items-center rounded-md text-[#8f9198] hover:bg-white/[0.06] hover:text-white"
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
         </button>
         <div className="ml-2 grid size-8 place-items-center rounded-full bg-[#d9d8ff] text-xs font-semibold text-[#4a4891]">
           DA
