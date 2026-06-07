@@ -32,33 +32,44 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
 
+      - name: Cache OpenCode
+        id: cache-opencode
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin/opencode
+          key: opencode-${{ runner.os }}
+
       - name: Install OpenCode
+        if: steps.cache-opencode.outputs.cache-hit != 'true'
         run: curl -fsSL https://opencode.ai/install | bash
 
       - name: Configure OpenCode for MiniMax
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_API_BASE: ${{ secrets.MINIMAX_API_BASE || 'https://api.minimax.io' }}
+          MINIMAX_MODEL: ${{ secrets.MINIMAX_MODEL || 'MiniMax-M2.5' }}
         run: |
-          mkdir -p "$HOME/.config/opencode"
-          cat > "$HOME/.config/opencode/config.json" <<'EOF'
+          cat > .opencode.json <<EOF
           {
+            "\$schema": "https://opencode.ai/config.json",
             "provider": {
               "minimax": {
                 "id": "minimax",
                 "name": "MiniMax",
-                "api_key_env": "MINIMAX_API_KEY",
+                "options": {
+                  "apiKey": "${MINIMAX_API_KEY}",
+                  "baseURL": "${MINIMAX_API_BASE}/v1/text/chatcompletion_v2"
+                },
                 "models": {
-                  "${{ secrets.MINIMAX_MODEL || 'MiniMax-M2.5' }}": {
-                    "id": "${{ secrets.MINIMAX_MODEL || 'MiniMax-M2.5' }}",
-                    "name": "MiniMax M2.5",
-                    "api_url": "${{ secrets.MINIMAX_API_BASE || 'https://api.minimax.io' }}/v1/text/chatcompletion_v2",
-                    "can_reason": true,
-                    "supports_tool_calls": true
+                  "${MINIMAX_MODEL}": {
+                    "id": "${MINIMAX_MODEL}",
+                    "name": "MiniMax",
+                    "tool_call": true
                   }
                 }
               }
             },
-            "model": {
-              "default": "minimax/${{ secrets.MINIMAX_MODEL || 'MiniMax-M2.5' }}"
-            }
+            "model": "minimax/${MINIMAX_MODEL}"
           }
           EOF
 
