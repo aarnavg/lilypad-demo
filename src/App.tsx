@@ -3,12 +3,21 @@ import { useState } from "react";
 import { AgentProvider } from "./agent/AgentProvider";
 import { OpenAIHost } from "./host/openai/OpenAIHost";
 import { SettingsApp } from "./host/settings-app/SettingsApp";
+import { ReportExportButton } from "./widget/ReportExportButton";
 import { SupportWidget } from "./widget/SupportWidget";
+import { mockReports } from "./data/mockReports";
 
 type DemoHost = "openai" | "settings";
 
 function App() {
   const [host, setHost] = useState<DemoHost>("openai");
+
+  const reportData = {
+    id: mockReports[0].id,
+    title: mockReports[0].title,
+    data: mockReports[0].data,
+    generatedAt: new Date()
+  };
 
   return (
     <AgentProvider key={host}>
@@ -42,6 +51,7 @@ function App() {
           </button>
         </div>
 
+        <ReportExportButton reportData={reportData} />
         <SupportWidget />
       </div>
     </AgentProvider>
@@ -49,3 +59,4 @@ function App() {
 }
 
 export default App;
+
