@@ -11,6 +11,17 @@
   --coral: #ef765f;
 }
 
+.dark {
+  --ink: #e8e6e3;
+  --muted: #9a958f;
+  --paper: #1a1a1c;
+  --line: #2e2e30;
+  --panel: #242426;
+  --moss: #3d8f6f;
+  --moss-dark: #2a6b50;
+  --coral: #f08a76;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -18,6 +29,14 @@
 html {
   min-width: 320px;
   background: #f8f8f7;
+}
+
+.dark html {
+  background: #0d0d0e;
+}
+
+.dark body {
+  background: #0d0d0e;
 }
 
 body {
@@ -34,6 +53,12 @@ body {
   background:
     radial-gradient(circle at 72% -15%, rgb(60 72 66 / 0.13), transparent 34%),
     #151619;
+}
+
+.dark .closedai {
+  background:
+    radial-gradient(circle at 72% -15%, rgb(40 48 44 / 0.2), transparent 34%),
+    #0a0a0c;
 }
 
 .demo-switcher {
