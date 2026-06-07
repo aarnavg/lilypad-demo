@@ -22,24 +22,25 @@ npm run dev
 
 ## Widget UI (this is the user-side surface I own)
 
-This repo is the **customer-side demo**: a realistic host site (`src/host/*`)
-with the Lilypad widget embedded. The widget is intentionally a tiny
-**liquid-glass overlay** — never a chat panel — so it barely covers the host app.
+This repo is the **customer-side demo**: two realistic host sites (`src/host/*`)
+with the Lilypad widget embedded. ClosedAI is the developer-platform demo and
+Hearth is the consumer account-settings demo. The widget is intentionally a
+tiny **liquid-glass overlay**, never a chat panel, so it barely covers either host.
 The real intelligence (LiveKit, Minimax vision, voice ASR/TTS, Truefoundry,
 Unsiloed retrieval) is the team's and plugs in through the seams below; the UI
 does not change.
 
-- `src/widget/LilyOrb.tsx` — the persistent glass presence (~56px). One click
-  starts/stops talking; status is shown purely through motion (ripples / dot /
-  wave), no labels.
-- `src/widget/LilyOverlay.tsx` — the only chrome shown when open: a translucent
+- `src/widget/LilyOrb.tsx` - the persistent glass presence (~56px). One click
+  starts/stops talking; status is shown through motion.
+- `src/widget/LilyOverlay.tsx` - the only chrome shown when open: a translucent
   `.lily-glass` bubble with Lily's latest line, a small state dot, and at most
-  **one** action button. Controls (mic / screen share / close) stay hidden until
-  hover. No headers, badges, evidence, confidence, or transcript.
+  **one** action button. Compact mic, screen-share, and close controls remain
+  visible and touch-friendly. There is no large header, evidence panel,
+  confidence meter, or transcript.
 - `SupportWidget` auto-opens the overlay hands-free whenever the agent reacts
   (`state.attention`), so users never hunt for controls.
 
-There is **no voice/TTS in this repo** — that's the team's pipeline. The mic
+There is **no voice/TTS in this repo** - that's the team's pipeline. The mic
 button is a UI affordance that flips `client.setListening(...)` (drives the orb
 animation only). Wire real ASR/TTS inside `LiveSupportAgent`.
 
@@ -127,7 +128,7 @@ action registry can remain as an optional structured tool channel.
 2. Send the quickstart test request to trigger `429 insufficient_quota`.
 3. Create another secret key to trigger the scripted HTTP 500 bug.
 4. Open Limits and search for `monthly budget per key`.
-5. Switch to Account settings and search for `cancel my subscription`.
+5. Switch to Hearth and search for `cancel my membership`.
 
 Switching host apps remounts the mock client and resets the scripted
 conversation for a clean presentation.

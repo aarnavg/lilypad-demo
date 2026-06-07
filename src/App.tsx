@@ -26,26 +26,28 @@ function App() {
           <button
             type="button"
             onClick={() => setHost("openai")}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-semibold transition ${
+            aria-label="ClosedAI demo"
+            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition sm:px-3 ${
               host === "openai"
                 ? "bg-white text-[#111] shadow-sm"
                 : "text-current opacity-55 hover:opacity-100"
             }`}
           >
             <Code2 size={14} />
-            ClosedAI
+            <span className="hidden sm:inline">ClosedAI</span>
           </button>
           <button
             type="button"
             onClick={() => setHost("settings")}
-            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-semibold transition ${
+            aria-label="Hearth demo"
+            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition sm:px-3 ${
               host === "settings"
                 ? "bg-[#1e332b] text-white shadow-sm"
                 : "text-current opacity-55 hover:opacity-100"
             }`}
           >
             <Building2 size={14} />
-            Hearth
+            <span className="hidden sm:inline">Hearth</span>
           </button>
         </div>
 
