@@ -1,6 +1,6 @@
-import { Building2, Code2 } from "lucide-react";
+import { Building2, Code2, Moon, Sun } from "lucide-react";
 import clsx from "clsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AgentProvider } from "./agent/AgentProvider";
 import { OpenAIHost } from "./host/openai/OpenAIHost";
 import { SettingsApp } from "./host/settings-app/SettingsApp";
@@ -10,6 +10,20 @@ type DemoHost = "openai" | "settings";
 
 function App() {
   const [host, setHost] = useState<DemoHost>("openai");
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [darkMode]);
 
   return (
     <AgentProvider key={host}>
@@ -35,6 +49,18 @@ function App() {
           >
             <Code2 size={14} />
             <span className="hidden sm:inline">ClosedAI</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            className={`flex items-center gap-2 whitespace-nowrap rounded-full px-2.5 py-2 text-[11px] font-semibold transition sm:px-3 ${
+              host === "openai"
+                ? "bg-white text-[#111] shadow-sm"
+                : "text-current opacity-55 hover:opacity-100"
+            }`}
+          >
+            {darkMode ? <Sun size={14} /> : <Moon size={14} />}
           </button>
           <button
             type="button"
