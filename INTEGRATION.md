@@ -1,7 +1,7 @@
 # Lilypad Demo Integration
 
-The demo defaults to a fully scripted client so the user-side experience runs
-without backend services:
+This repository is the customer-side demo. It defaults to a scripted adapter so
+the full experience runs without backend services:
 
 ```bash
 npm run dev
@@ -9,63 +9,50 @@ npm run dev
 
 To select the production adapter stub:
 
-```bash
-VITE_AGENT_MODE=live npm run dev
-```
-
-On PowerShell:
-
 ```powershell
 $env:VITE_AGENT_MODE = "live"
 npm run dev
 ```
 
-## Widget UI (this is the user-side surface I own)
+## User-Side Surface
 
-This repo is the **customer-side demo**: two realistic host sites (`src/host/*`)
-with the Lilypad widget embedded. ClosedAI is the developer-platform demo and
-Hearth is the consumer account-settings demo. The widget is intentionally a
-tiny **liquid-glass overlay**, never a chat panel, so it barely covers either host.
-The real intelligence (LiveKit, Minimax vision, voice ASR/TTS, Truefoundry,
-Unsiloed retrieval) is the team's and plugs in through the seams below; the UI
-does not change.
+The two embedded customer products are:
 
-- `src/widget/LilyOrb.tsx` - the persistent glass presence (~56px). One click
-  starts/stops talking; status is shown through motion.
-- `src/widget/LilyOverlay.tsx` - the only chrome shown when open: a translucent
-  `.lily-glass` bubble with Lily's latest line, a small state dot, and at most
-  **one** action button. Compact mic, screen-share, and close controls remain
-  visible and touch-friendly. There is no large header, evidence panel,
-  confidence meter, or transcript.
-- `SupportWidget` auto-opens the overlay hands-free whenever the agent reacts
-  (`state.attention`), so users never hunt for controls.
+- **ClosedAI:** a realistic developer platform with API keys, usage, billing,
+  project limits, and request testing.
+- **Hearth:** a consumer membership and household-settings product.
 
-There is **no voice/TTS in this repo** - that's the team's pipeline. The mic
-button is a UI affordance that flips `client.setListening(...)` (drives the orb
-animation only). Wire real ASR/TTS inside `LiveSupportAgent`.
+Lilypad stays a small liquid-glass overlay rather than a chat panel.
 
-## Integration seams
+- `src/widget/LilyOrb.tsx` is the persistent launcher and activity indicator.
+- `src/widget/LilyOverlay.tsx` shows Lily's latest line, ranked private sources,
+  mic/share controls, and at most one suggested action.
+- `SupportWidget` opens automatically when Lily reacts to the current screen.
 
-### 1. Agent runtime
+There is no real ASR or TTS in this repository. The mic button only drives the
+mock listening state. The team's voice pipeline belongs in `LiveSupportAgent`.
 
-`src/agent/AgentProvider.tsx` selects either `MockSupportAgent` or
+## Integration Seams
+
+### 1. Agent Runtime
+
+`src/agent/AgentProvider.tsx` selects `MockSupportAgent` or
 `LiveSupportAgent`. Both implement `SupportAgentClient` from
 `src/agent/types.ts`.
 
 Implement the TODO blocks in `LiveSupportAgent` for:
 
-- LiveKit room connection and track lifecycle
+- LiveKit room and track lifecycle
 - Minimax frame observations
-- voice ASR/TTS messages and status changes
-- retrieval and tool/action dispatch
+- voice ASR/TTS messages and status
+- Moss retrieval and tool dispatch
 
-The widget only consumes `SupportAgentClient`; it does not need backend-specific
-changes.
+The UI does not need backend-specific changes.
 
-### 2. Screen-share feed
+### 2. Screen-Share Feed
 
-`src/widget/useScreenShare.ts` owns `getDisplayMedia` and `MediaRecorder`. It
-keeps the existing global feed:
+`src/widget/useScreenShare.ts` owns `getDisplayMedia` and `MediaRecorder` and
+preserves:
 
 ```ts
 window.lilypadSupportFeed = {
@@ -78,57 +65,83 @@ window.lilypadSupportFeed = {
 };
 ```
 
-Publish `window.lilypadSupportFeed.stream` as the LiveKit screen track. The
-stream is `null` until the user grants browser screen-sharing permission.
+Publish `window.lilypadSupportFeed.stream` as the LiveKit screen track.
 
-### 3. GitHub and feedback APIs
+### 3. GitHub and Feedback
 
-Replace the implementations in `src/data/mockApi.ts`:
+Replace these mock implementations in `src/data/mockApi.ts`:
 
 - `createGitHubIssue()`
 - `submitFeedback()`
 
-Keep their return shapes or adapt the results inside the selected agent client.
+Keep their return shapes or adapt them inside the selected agent client.
 
 ### 4. Retrieval
 
-`searchDocs()` in `src/data/mockApi.ts` currently searches the chunks in
-`src/data/mockKnowledge.ts`. Replace it with the document upload/retrieval
-service and return a `KnowledgeEvidence` object.
+`searchDocs()` currently ranks chunks from `src/data/mockKnowledge.ts` and
+returns `KnowledgeEvidence[]`. Replace it with Moss over documents parsed by
+Unsiloed.
 
-### 5. Screen observations and host actions
+The mock corpus intentionally contains private policies, runbooks, deployment
+notes, incident templates, support rollups, and membership exceptions. These
+make the correct answer impossible to derive from the public UI alone.
 
-`src/host/hostBus.ts` is the structured stand-in for visual understanding.
-Hosts publish observations:
+### 5. Screen Observations and Host Actions
+
+`src/host/hostBus.ts` is the structured stand-in for Minimax visual context:
 
 ```ts
 publishHostObservation({
   host: "openai",
   event: "request.quota_exceeded",
-  title: "Test request returned insufficient quota",
-  detail: "HTTP 429: Project has a $0.00 credit balance.",
+  title: "Production request returned insufficient quota",
+  detail: "HTTP 429 despite positive organization credits.",
+  metadata: {
+    requestId: "req_7f3a91",
+    organizationCredits: 87.42,
+    projectSpend: 120,
+    projectBudget: 120,
+  },
 });
 ```
 
-Hosts can also register safe UI actions:
+Hosts also register reversible UI actions:
 
 ```ts
-hostBus.registerAction("openai.go-to-billing", async () => {
-  navigateToBilling();
-  return { ok: true, message: "Took you to Billing." };
+hostBus.registerAction("openai.raise-budget", async () => {
+  navigateToLimits();
+  raiseBudget();
+  retryFailedRequest();
+  return { ok: true, message: "Raised the budget and verified a 200 retry." };
 });
 ```
 
 In production, Minimax observations can replace or supplement host events. The
 action registry can remain as an optional structured tool channel.
 
-## Demo order
+## Judge Demo
 
-1. Create a secret key. The first attempt succeeds.
-2. Send the quickstart test request to trigger `429 insufficient_quota`.
-3. Create another secret key to trigger the scripted HTTP 500 bug.
-4. Open Limits and search for `monthly budget per key`.
-5. Switch to Hearth and search for `cancel my membership`.
+Start on the teammate-owned admin portal and show that private documentation is
+linked and indexed. Then move to this user-side application.
 
-Switching host apps remounts the mock client and resets the scripted
-conversation for a clean presentation.
+1. **Ambiguous 429:** click **Send test request**. The API only says
+   `insufficient_quota`, while the page visibly shows $87.42 in organization
+   credits. Lily matches the private limits policy, correlates Production's
+   $120/$120 spend, raises the cap, preserves alerts, and verifies a `200` retry.
+2. **Rollout regression:** create one restricted service key successfully, then
+   create another. The second request returns `500` with `req_91c2e8`. Lily
+   cross-checks the key runbook, same-day auth v2.3.1 deployment notes, and the
+   incident template, then files a sanitized GitHub issue with the likely cause.
+3. **Product gap plus workaround:** open Limits and search
+   `cap prod-support-worker at $75 per month`. Lily confirms per-key budgets are
+   unsupported, finds 37 similar enterprise requests in the support rollup,
+   logs `FEAT-284`, and creates the approved isolated-project workaround.
+4. **Hearth policy exception:** search
+   `pause while I move without losing household routines`. Lily sees 26 paid
+   months, four household members, 18 routines, and 1,842 archive items. Private
+   Policy 7B reveals a hidden 90-day pause, which Lily applies without deleting
+   the household setup.
+
+The point of the demo is not that Lily can explain an error. It is that Lily can
+combine live visual context, private company knowledge, customer history, and
+safe actions into a verified resolution.

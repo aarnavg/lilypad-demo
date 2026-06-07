@@ -2,13 +2,14 @@ import { createGitHubIssue, searchDocs, submitFeedback } from "../data/mockApi";
 import { hostBus } from "../host/hostBus";
 import { findOpenAIScenario } from "../scenarios/openai";
 import { findSettingsScenario } from "../scenarios/settings";
-import type {
-  ActionResult,
-  AgentState,
-  ConversationMessage,
-  ScreenObservation,
-  ScriptedScenario,
-  SupportAgentClient,
+import {
+  LILY_GREETING,
+  type ActionResult,
+  type AgentState,
+  type ConversationMessage,
+  type ScreenObservation,
+  type ScriptedScenario,
+  type SupportAgentClient,
 } from "./types";
 
 const initialState: AgentState = {
@@ -19,13 +20,14 @@ const initialState: AgentState = {
     {
       id: "welcome",
       role: "agent",
-      text: "Hi, I'm Lily. Just tell me what's going wrong — I can see your screen and I'll help.",
+      text: LILY_GREETING,
       createdAt: Date.now(),
     },
   ],
   observation: null,
   detection: null,
   actionResult: null,
+  activity: null,
 };
 
 export class MockSupportAgent implements SupportAgentClient {
@@ -77,18 +79,35 @@ export class MockSupportAgent implements SupportAgentClient {
     if (action.kind === "host") {
       result = await hostBus.runAction(action.id, action.payload);
     } else if (action.kind === "github") {
-      const issue = await createGitHubIssue();
+      const title =
+        typeof action.payload?.title === "string"
+          ? action.payload.title
+          : undefined;
+      const issue = await createGitHubIssue(title);
       result = {
         ok: true,
-        message: `Filed issue #${issue.number}`,
+        message: `Filed issue #${issue.number} with req_91c2e8, sanitized scopes, us-west, and the auth v2.3.1 rollout evidence.`,
         artifact: { label: `Issue #${issue.number}`, url: issue.url },
       };
     } else {
       const feedback = await submitFeedback();
+      const hostActionId =
+        typeof action.payload?.hostActionId === "string"
+          ? action.payload.hostActionId
+          : undefined;
+      const hostResult = hostActionId
+        ? await hostBus.runAction(hostActionId, action.payload)
+        : undefined;
       result = {
-        ok: true,
-        message: `Logged ${feedback.id} to the ${feedback.route}.`,
-        artifact: { label: feedback.id },
+        ok: hostResult?.ok ?? true,
+        message: hostResult
+          ? `Logged ${feedback.id}. ${hostResult.message}`
+          : `Logged ${feedback.id} to the ${feedback.route}.`,
+        artifact: {
+          label: hostResult
+            ? `${feedback.id} + workaround`
+            : `${feedback.id} logged`,
+        },
       };
     }
 
@@ -140,12 +159,14 @@ export class MockSupportAgent implements SupportAgentClient {
     this.timers.forEach((timer) => window.clearTimeout(timer));
     this.timers.clear();
 
+    // Step 1 — Minimax reads the screen.
     this.patch({
       status: "thinking",
       attention: true,
       observation,
       detection: null,
       actionResult: null,
+      activity: { tool: "minimax", label: "Reading your screen" },
       messages: [
         ...this.state.messages,
         this.message("user", scenario.userMessage),
@@ -154,26 +175,40 @@ export class MockSupportAgent implements SupportAgentClient {
 
     const knowledge = scenario.knowledgeQuery
       ? await searchDocs(scenario.knowledgeQuery)
-      : undefined;
+      : [];
 
+    // Step 2 — Moss retrieves the company's docs.
+    this.schedule(() => {
+      this.patch({
+        status: "thinking",
+        activity: {
+          tool: "moss",
+          label: `Matching ${knowledge.length} private sources`,
+        },
+      });
+    }, 850);
+
+    // Step 3 — grounded answer.
     this.schedule(() => {
       this.patch({
         status: "speaking",
         attention: true,
+        activity: null,
         messages: [
           ...this.state.messages,
           this.message("agent", scenario.agentMessage),
         ],
       });
-    }, 450);
+    }, 1900);
 
+    // Step 4 — classification + the one-tap action.
     this.schedule(() => {
       this.patch({
         status: "observing",
         attention: true,
         detection: { ...scenario.detection, knowledge },
       });
-    }, 2200);
+    }, 3000);
   }
 
   private findScenario(observation: ScreenObservation): ScriptedScenario | undefined {

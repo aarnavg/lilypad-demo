@@ -1,36 +1,66 @@
-const bars = [18, 28, 22, 34, 31, 48, 44, 58, 51, 63, 70, 66, 79, 74];
+const bars = [28, 33, 31, 42, 47, 55, 51, 62, 68, 73, 79, 86, 92, 100];
 
-export function UsagePage() {
+export function UsagePage({ budgetLabel }: { budgetLabel: string }) {
+  const raised = budgetLabel.includes("$500");
   return (
     <div className="mx-auto w-full max-w-[1160px] px-5 py-8 md:px-10 md:py-11">
       <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-[#777980]">
-        <span>Project</span><span>/</span><span className="text-[#aaaab0]">Usage</span>
+        <span>Production</span>
+        <span>/</span>
+        <span className="text-[#aaaab0]">Usage</span>
       </div>
-      <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">Usage</h1>
-      <p className="mt-2 text-sm text-[#8f9198]">Monitor API activity and project spend.</p>
+      <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">
+        Usage
+      </h1>
+      <p className="mt-2 text-sm text-[#8f9198]">
+        Live spend and request activity for the Production project.
+      </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {[
-          ["Total cost", "$0.00"],
-          ["Requests", "0"],
-          ["Monthly budget", "$120.00"],
+          ["Project spend", "$120.00"],
+          ["Requests", "48,291"],
+          ["Monthly budget", raised ? "$500.00" : "$120.00"],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-xl border border-white/[0.08] bg-[#1b1c1f] p-5">
+          <div
+            key={label}
+            className="rounded-xl border border-white/[0.08] bg-[#1b1c1f] p-5"
+          >
             <p className="text-xs text-[#797b82]">{label}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight text-[#f0f0f1]">{value}</p>
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-[#f0f0f1]">
+              {value}
+            </p>
           </div>
         ))}
       </div>
+
       <section className="mt-5 rounded-xl border border-white/[0.08] bg-[#1b1c1f] p-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-[#eeeeef]">Daily API requests</h2>
-            <p className="mt-1 text-xs text-[#797b82]">May 24 to June 6</p>
+            <h2 className="text-sm font-semibold text-[#eeeeef]">
+              Daily API spend
+            </h2>
+            <p className="mt-1 text-xs text-[#797b82]">May 25 to June 7</p>
           </div>
-          <button className="rounded-lg border border-white/[0.09] bg-white/[0.03] px-3 py-2 text-xs text-[#b9bac0]">All models</button>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-[#402220] px-2.5 py-1 text-[10px] font-medium text-[#ef9e95]">
+              Budget reached
+            </span>
+            <button className="rounded-lg border border-white/[0.09] bg-white/[0.03] px-3 py-2 text-xs text-[#b9bac0]">
+              All models
+            </button>
+          </div>
         </div>
         <div className="mt-10 flex h-52 items-end gap-3 border-b border-white/[0.08] px-2">
           {bars.map((height, index) => (
-            <div key={index} className="flex-1 rounded-t bg-[#4d8b70]" style={{ height: `${height}%`, opacity: 0.58 + index * 0.025 }} />
+            <div
+              key={index}
+              className="flex-1 rounded-t"
+              style={{
+                height: `${height}%`,
+                background: index === bars.length - 1 ? "#c05b4b" : "#4d8b70",
+                opacity: 0.58 + index * 0.025,
+              }}
+            />
           ))}
         </div>
       </section>

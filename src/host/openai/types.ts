@@ -4,6 +4,8 @@ export interface ApiKeyRow {
   id: string;
   name: string;
   preview: string;
+  type: string;
+  scopes: string;
   created: string;
   lastUsed: string;
 }
