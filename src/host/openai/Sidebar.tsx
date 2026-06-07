@@ -50,7 +50,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <p className="px-5 pb-2 pt-4 text-[10px] font-medium uppercase tracking-[.12em] text-[#66686f]">
+      <p className="px-5 pb-2 pt-4 text-[10px] font-medium uppercase tracking-[.12em] text-[#8a8c94]">
         Build
       </p>
       <nav className="space-y-0.5 px-2.5" aria-label="Platform navigation">
@@ -64,7 +64,7 @@ export function Sidebar({
               "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition",
               id === page
                 ? "bg-white/[0.09] font-medium text-white"
-                : "text-[#999ba2] hover:bg-white/[0.05] hover:text-[#e5e5e7]",
+                : "text-[#b0b2b8] hover:bg-white/[0.05] hover:text-[#e5e5e7]",
               !id && "cursor-default",
             )}
           >
@@ -75,11 +75,11 @@ export function Sidebar({
       </nav>
 
       <div className="mt-auto space-y-1 border-t border-white/[0.07] p-3 pb-20">
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#8d8f96] hover:bg-white/[0.05] hover:text-white">
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#a8aaaf] hover:bg-white/[0.05] hover:text-white">
           <SlidersHorizontal size={16} />
           Fine-tuning
         </button>
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#8d8f96] hover:bg-white/[0.05] hover:text-white">
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-[#a8aaaf] hover:bg-white/[0.05] hover:text-white">
           <Settings size={16} />
           Settings
         </button>

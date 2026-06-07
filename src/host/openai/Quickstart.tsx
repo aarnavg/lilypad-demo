@@ -14,7 +14,7 @@ export function Quickstart() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
         <div>
           <p className="text-sm font-semibold text-[#eeeeef]">Quickstart</p>
-          <p className="mt-1 text-xs text-[#808289]">
+          <p className="mt-1 text-xs text-[#94969d]">
             Send your first request with the Responses API.
           </p>
         </div>
@@ -24,7 +24,7 @@ export function Quickstart() {
       </div>
       <div className="bg-[#101114] p-5 font-mono text-[11px] leading-5 text-[#d1d1d4]">
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-[#686a71]">cURL</span>
+          <span className="text-[#787a80]">cURL</span>
           <button
             type="button"
             onClick={() => {
@@ -56,7 +56,7 @@ export function Quickstart() {
         </p>
       </div>
       <div className="flex items-center justify-between gap-4 px-5 py-4">
-        <span className="text-xs text-[#74767d]">
+        <span className="text-xs text-[#8d8f96]">
           Uses the project's selected key
         </span>
         <a
