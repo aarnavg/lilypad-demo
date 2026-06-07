@@ -37,6 +37,19 @@ export interface KnowledgeEvidence {
   title: string;
   excerpt: string;
   source: string;
+  /** Page/section locator for the citation, e.g. "§4.2". */
+  locator?: string;
+}
+
+/**
+ * A single step in the agent's working pipeline, surfaced live in the UI so the
+ * user (and demo judges) can see *how* Lily reaches an answer:
+ *   Minimax reads the screen → Moss retrieves the company's docs → grounded answer.
+ * In production `LiveSupportAgent` sets these as it calls each tool.
+ */
+export interface AgentActivity {
+  tool: "minimax" | "moss" | "unsiloed" | string;
+  label: string;
 }
 
 export interface Detection {
@@ -46,7 +59,10 @@ export interface Detection {
   rationale: string;
   evidence: string[];
   action: AgentAction;
-  knowledge?: KnowledgeEvidence;
+  /** Private sources retrieved for this conclusion, ranked by relevance. */
+  knowledge?: KnowledgeEvidence[];
+  /** Exact thing Lily saw on screen (Minimax), used to ground the answer. */
+  observed?: string;
 }
 
 export interface ActionResult {
@@ -66,6 +82,8 @@ export interface AgentState {
   observation: ScreenObservation | null;
   detection: Detection | null;
   actionResult: ActionResult | null;
+  /** Current working step (screen read / doc retrieval) shown while thinking. */
+  activity: AgentActivity | null;
 }
 
 export interface SupportAgentClient {
@@ -89,3 +107,6 @@ export interface ScriptedScenario {
   knowledgeQuery?: string;
   detection: Detection;
 }
+
+export const LILY_GREETING =
+  "Hi, I'm Lily. Just tell me what's going wrong — I can see your screen and I've read your team's docs.";

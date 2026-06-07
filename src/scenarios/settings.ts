@@ -2,26 +2,31 @@ import type { ScreenObservation, ScriptedScenario } from "../agent/types";
 
 export const settingsScenarios: ScriptedScenario[] = [
   {
-    id: "buried-downgrade",
+    id: "hidden-pause",
     host: "settings",
     triggerEvent: "subscription.cancel.searched",
-    userMessage: "I just want to stop this subscription. Where is cancel?",
+    userMessage:
+      "I'm moving for a couple months. Can I stop paying without losing our setup?",
     agentMessage:
-      "The control is tucked inside Membership under your current plan. I can open it and switch you to the Free plan for you.",
-    knowledgeQuery: "cancel downgrade subscription billing plan",
+      "I would not cancel: it would disable your shared routines. With 26 paid months, private Policy 7B makes you eligible for a hidden 90-day pause that preserves all four members, 18 routines, and your archive. I can apply it now.",
+    knowledgeQuery:
+      "cancel pause 90 days membership history household routines archive preserve move downgrade data",
     detection: {
-      id: "cancel-ux-detection",
+      id: "pause-ux-detection",
       classification: "product_gap",
-      title: "Cancellation is hard to find",
+      title: "A safer option is hidden",
       rationale:
-        "The option exists, but the path and wording make a common account task unnecessarily difficult.",
+        "The visible UI only offers downgrade, while a private policy makes this member eligible for a setup-preserving pause.",
+      observed:
+        "Search returned no pause option; account history shows 26 paid months, 4 household members, and 18 routines.",
       evidence: [
-        "You searched account settings for cancel and downgrade.",
-        "The control is nested under Membership, then Current membership.",
+        "A normal downgrade would disable shared routines and archive search.",
+        "Policy 7B grants long-term members a hidden 90-day pause.",
+        "This account exceeds the 12-month eligibility requirement.",
       ],
       action: {
-        id: "settings.downgrade-plan",
-        label: "Do it for me",
+        id: "settings.pause-membership",
+        label: "Pause for 90 days",
         kind: "host",
       },
     },

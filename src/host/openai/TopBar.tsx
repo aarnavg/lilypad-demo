@@ -13,9 +13,9 @@ export function TopBar({ onOpenMobile }: { onOpenMobile: () => void }) {
           <Menu size={19} />
         </button>
         <button className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] font-medium text-[#e7e7e9] hover:bg-white/[0.06]">
-          Personal
-          <span className="text-[#5d5f65]">/</span>
-          Default project
+          <span className="hidden sm:inline">Acme AI</span>
+          <span className="hidden text-[#5d5f65] sm:inline">/</span>
+          <span>Production</span>
           <ChevronDown size={14} className="text-[#85878e]" />
         </button>
       </div>

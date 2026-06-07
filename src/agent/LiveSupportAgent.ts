@@ -27,6 +27,7 @@ export class LiveSupportAgent implements SupportAgentClient {
     observation: null,
     detection: null,
     actionResult: null,
+    activity: null,
   };
   private listeners = new Set<(state: AgentState) => void>();
 

@@ -1,8 +1,10 @@
-import { Check, Copy, MoreHorizontal, Plus, X } from "lucide-react";
+import { Check, Copy, KeyRound, MoreHorizontal, Plus, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { ApiKeyRow } from "./types";
 import { QuickstartTest } from "./QuickstartTest";
+
+const defaultScopes = ["responses.write", "files.read"];
 
 export function ApiKeysPage({
   keys,
@@ -10,7 +12,10 @@ export function ApiKeysPage({
   onTestRequest,
 }: {
   keys: ApiKeyRow[];
-  onCreate: (name: string) => Promise<{ ok: boolean; key?: string }>;
+  onCreate: (
+    name: string,
+    options: { type: string; scopes: string[] },
+  ) => Promise<{ ok: boolean; key?: string }>;
   onTestRequest: () => Promise<void>;
 }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,16 +23,22 @@ export function ApiKeysPage({
   const [creating, setCreating] = useState(false);
   const [generatedKey, setGeneratedKey] = useState<string>();
   const [copied, setCopied] = useState(false);
+  const [keyType, setKeyType] = useState("Service account");
+  const [permissionMode, setPermissionMode] = useState("Restricted");
 
   async function createKey() {
     setCreating(true);
-    const result = await onCreate(name || "Demo key");
+    const scopes =
+      permissionMode === "Restricted" ? defaultScopes : ["all"];
+    const result = await onCreate(name || "prod-worker-backup", {
+      type: keyType,
+      scopes,
+    });
     setCreating(false);
     if (result.ok && result.key) {
       setGeneratedKey(result.key);
     } else {
-      setModalOpen(false);
-      setName("");
+      closeModal();
     }
   }
 
@@ -35,6 +46,7 @@ export function ApiKeysPage({
     setModalOpen(false);
     setGeneratedKey(undefined);
     setName("");
+    setCopied(false);
   }
 
   return (
@@ -42,11 +54,16 @@ export function ApiKeysPage({
       <div className="mb-9 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-3 flex items-center gap-2 text-[11px] font-medium text-[#777980]">
-            <span>Project</span><span>/</span><span className="text-[#aaaab0]">API keys</span>
+            <span>Production</span>
+            <span>/</span>
+            <span className="text-[#aaaab0]">API keys</span>
           </div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">API keys</h1>
+          <h1 className="text-[30px] font-semibold tracking-[-0.035em] text-[#f5f5f6]">
+            API keys
+          </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#8f9198]">
-            Manage secret keys for the Default project. Keep keys private and rotate them if exposed.
+            Manage credentials for the Production project. Restricted service
+            keys are recommended for deployed workloads.
           </p>
         </div>
         <button
@@ -60,24 +77,34 @@ export function ApiKeysPage({
       </div>
 
       <section className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#1b1c1f]">
-        <div className="grid grid-cols-[1.5fr_1fr_.8fr_38px] border-b border-white/[0.07] bg-white/[0.025] px-5 py-3 text-[10px] font-medium uppercase tracking-[.09em] text-[#73757c]">
+        <div className="hidden grid-cols-[1.35fr_.9fr_1fr_.7fr_38px] border-b border-white/[0.07] bg-white/[0.025] px-5 py-3 text-[10px] font-medium uppercase tracking-[.09em] text-[#73757c] sm:grid">
           <span>Name</span>
           <span>Secret key</span>
+          <span>Type / access</span>
           <span>Last used</span>
           <span />
         </div>
         {keys.map((key) => (
           <div
             key={key.id}
-            className="grid grid-cols-[1.5fr_1fr_.8fr_38px] items-center border-b border-white/[0.06] px-5 py-4 text-sm last:border-b-0 hover:bg-white/[0.025]"
+            className="grid gap-3 border-b border-white/[0.06] px-5 py-4 text-sm last:border-b-0 hover:bg-white/[0.025] sm:grid-cols-[1.35fr_.9fr_1fr_.7fr_38px] sm:items-center sm:gap-0"
           >
             <div>
               <p className="font-medium text-[#e9e9eb]">{key.name}</p>
-              <p className="mt-1 text-xs text-[#707279]">Created {key.created}</p>
+              <p className="mt-1 text-xs text-[#707279]">
+                Created {key.created}
+              </p>
             </div>
             <code className="text-xs text-[#a3a5ac]">{key.preview}</code>
+            <div>
+              <p className="text-xs text-[#c4c5c9]">{key.type}</p>
+              <p className="mt-1 text-[10px] text-[#777980]">{key.scopes}</p>
+            </div>
             <span className="text-xs text-[#797b82]">{key.lastUsed}</span>
-            <button className="grid size-8 place-items-center rounded-md text-[#777980] hover:bg-white/[0.06] hover:text-white" aria-label={`Actions for ${key.name}`}>
+            <button
+              className="grid size-8 place-items-center rounded-md text-[#777980] hover:bg-white/[0.06] hover:text-white"
+              aria-label={`Actions for ${key.name}`}
+            >
               <MoreHorizontal size={16} />
             </button>
           </div>
@@ -100,7 +127,7 @@ export function ApiKeysPage({
               role="dialog"
               aria-modal="true"
               aria-labelledby="create-key-title"
-              className="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[#202125] p-6 text-[#f0f0f1] shadow-2xl"
+              className="w-full max-w-lg rounded-2xl border border-white/[0.1] bg-[#202125] p-6 text-[#f0f0f1] shadow-2xl"
               initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
@@ -108,15 +135,22 @@ export function ApiKeysPage({
               <div className="flex items-start justify-between">
                 <div>
                   <h2 id="create-key-title" className="text-lg font-semibold">
-                    {generatedKey ? "Save your secret key" : "Create new secret key"}
+                    {generatedKey
+                      ? "Save your secret key"
+                      : "Create new secret key"}
                   </h2>
                   <p className="mt-1 text-sm text-[#909299]">
                     {generatedKey
                       ? "You will not be able to view this key again."
-                      : "This key will belong to the Default project."}
+                      : "This credential belongs to Acme AI / Production."}
                   </p>
                 </div>
-                <button type="button" onClick={closeModal} className="text-[#8a8c93] hover:text-white" aria-label="Close">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="text-[#8a8c93] hover:text-white"
+                  aria-label="Close"
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -151,20 +185,93 @@ export function ApiKeysPage({
                   </button>
                 </div>
               ) : (
-                <div className="mt-6">
-                  <label className="text-xs font-medium text-[#c9c9cc]" htmlFor="key-name">
-                    Name
-                  </label>
-                  <input
-                    id="key-name"
-                    autoFocus
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    placeholder="My test key"
-                    className="mt-2 w-full rounded-lg border border-white/[0.1] bg-[#17181b] px-3 py-2.5 text-sm text-white outline-none placeholder:text-[#686a71] focus:border-[#777980] focus:ring-2 focus:ring-white/5"
-                  />
-                  <div className="mt-6 flex justify-end gap-2">
-                    <button type="button" onClick={closeModal} className="rounded-lg px-4 py-2.5 text-sm font-medium text-[#aaaab0]">
+                <div className="mt-6 space-y-5">
+                  <div>
+                    <label
+                      className="text-xs font-medium text-[#c9c9cc]"
+                      htmlFor="key-name"
+                    >
+                      Name
+                    </label>
+                    <input
+                      id="key-name"
+                      autoFocus
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      placeholder="prod-worker-backup"
+                      className="mt-2 w-full rounded-lg border border-white/[0.1] bg-[#17181b] px-3 py-2.5 text-sm text-white outline-none placeholder:text-[#686a71] focus:border-[#777980] focus:ring-2 focus:ring-white/5"
+                    />
+                  </div>
+
+                  <fieldset>
+                    <legend className="text-xs font-medium text-[#c9c9cc]">
+                      Owned by
+                    </legend>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {["Personal", "Service account"].map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setKeyType(type)}
+                          className={`rounded-lg border px-3 py-2.5 text-left text-xs ${
+                            keyType === type
+                              ? "border-[#8d8f96] bg-white/[0.08] text-white"
+                              : "border-white/[0.08] bg-[#17181b] text-[#85878e]"
+                          }`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <fieldset>
+                    <legend className="text-xs font-medium text-[#c9c9cc]">
+                      Permissions
+                    </legend>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {["All", "Restricted"].map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setPermissionMode(mode)}
+                          className={`rounded-lg border px-3 py-2.5 text-left text-xs ${
+                            permissionMode === mode
+                              ? "border-[#8d8f96] bg-white/[0.08] text-white"
+                              : "border-white/[0.08] bg-[#17181b] text-[#85878e]"
+                          }`}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                    {permissionMode === "Restricted" && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {defaultScopes.map((scope) => (
+                          <span
+                            key={scope}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-[#5b7d68]/30 bg-[#26382e] px-2.5 py-1.5 text-[10px] text-[#a9d6b9]"
+                          >
+                            <Check size={11} />
+                            {scope}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </fieldset>
+
+                  <div className="rounded-lg border border-white/[0.07] bg-black/15 p-3 text-[11px] leading-5 text-[#85878e]">
+                    <KeyRound size={13} className="mr-1.5 inline" />
+                    Client validation complete: owner role and selected scopes
+                    are allowed.
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="rounded-lg px-4 py-2.5 text-sm font-medium text-[#aaaab0]"
+                    >
                       Cancel
                     </button>
                     <button
